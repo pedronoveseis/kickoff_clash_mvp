@@ -1,0 +1,216 @@
+{
+  "cards": [
+    {
+      "id": "KM09",
+      "name": "Kylian Mbappe",
+      "country": "France",
+      "club": "Real Madrid",
+      "position": "Striker",
+      "number": 9,
+      "base_value": 9,
+      "rarity": "Epic"
+    },
+    {
+      "id": "VJ11",
+      "name": "Vinicius Junior",
+      "country": "Brazil",
+      "club": "Real Madrid",
+      "position": "Left Winger",
+      "number": 11,
+      "base_value": 11,
+      "rarity": "Epic"
+    },
+    {
+      "id": "JB08",
+      "name": "Jude Bellingham",
+      "country": "England",
+      "club": "Real Madrid",
+      "position": "Midfielder",
+      "number": 8,
+      "base_value": 8,
+      "rarity": "Epic"
+    },
+    {
+      "id": "EH09",
+      "name": "Erling Haaland",
+      "country": "Norway",
+      "club": "Manchester City",
+      "position": "Striker",
+      "number": 9,
+      "base_value": 9,
+      "rarity": "Epic"
+    },
+    {
+      "id": "RS10",
+      "name": "Rodri",
+      "country": "Spain",
+      "club": "Manchester City",
+      "position": "Defensive Midfielder",
+      "number": 6,
+      "base_value": 6,
+      "rarity": "Rare"
+    },
+    {
+      "id": "LM10",
+      "name": "Lionel Messi",
+      "country": "Argentina",
+      "club": "Inter Miami",
+      "position": "Attacking Midfielder",
+      "number": 10,
+      "base_value": 10,
+      "rarity": "Epic"
+    },
+    {
+      "id": "HK09",
+      "name": "Harry Kane",
+      "country": "England",
+      "club": "Bayern",
+      "position": "Striker",
+      "number": 9,
+      "base_value": 9,
+      "rarity": "Epic"
+    },
+    {
+      "id": "MS07",
+      "name": "Mohamed Salah",
+      "country": "Egypt",
+      "club": "Liverpool",
+      "position": "Right Winger",
+      "number": 7,
+      "base_value": 7,
+      "rarity": "Epic"
+    },
+    {
+      "id": "VVD04",
+      "name": "Virgil van Dijk",
+      "country": "Netherlands",
+      "club": "Liverpool",
+      "position": "Center Back",
+      "number": 4,
+      "base_value": 4,
+      "rarity": "Rare"
+    },
+    {
+      "id": "AB01",
+      "name": "Alisson Becker",
+      "country": "Brazil",
+      "club": "Liverpool",
+      "position": "Goalkeeper",
+      "number": 1,
+      "base_value": 1,
+      "rarity": "Rare"
+    },
+    {
+      "id": "BS07",
+      "name": "Bukayo Saka",
+      "country": "England",
+      "club": "Arsenal",
+      "position": "Right Winger",
+      "number": 7,
+      "base_value": 7,
+      "rarity": "Epic"
+    },
+    {
+      "id": "DR06",
+      "name": "Declan Rice",
+      "country": "England",
+      "club": "Arsenal",
+      "position": "Defensive Midfielder",
+      "number": 6,
+      "base_value": 6,
+      "rarity": "Rare"
+    },
+    {
+      "id": "WS04",
+      "name": "William Saliba",
+      "country": "France",
+      "club": "Arsenal",
+      "position": "Center Back",
+      "number": 4,
+      "base_value": 4,
+      "rarity": "Rare"
+    },
+    {
+      "id": "JM10",
+      "name": "Jamal Musiala",
+      "country": "Germany",
+      "club": "Bayern",
+      "position": "Attacking Midfielder",
+      "number": 10,
+      "base_value": 10,
+      "rarity": "Epic"
+    },
+    {
+      "id": "FW10",
+      "name": "Florian Wirtz",
+      "country": "Germany",
+      "club": "Bayern",
+      "position": "Attacking Midfielder",
+      "number": 10,
+      "base_value": 10,
+      "rarity": "Epic"
+    },
+    {
+      "id": "LY07",
+      "name": "Lamine Yamal",
+      "country": "Spain",
+      "club": "Barcelona",
+      "position": "Right Winger",
+      "number": 7,
+      "base_value": 7,
+      "rarity": "Epic"
+    },
+    {
+      "id": "PG08",
+      "name": "Pedri",
+      "country": "Spain",
+      "club": "Barcelona",
+      "position": "Midfielder",
+      "number": 8,
+      "base_value": 8,
+      "rarity": "Rare"
+    },
+    {
+      "id": "LTM09",
+      "name": "Lautaro Martinez",
+      "country": "Argentina",
+      "club": "Internazionale",
+      "position": "Striker",
+      "number": 9,
+      "base_value": 9,
+      "rarity": "Rare"
+    },
+    {
+      "id": "FV08",
+      "name": "Federico Valverde",
+      "country": "Uruguay",
+      "club": "Real Madrid",
+      "position": "Midfielder",
+      "number": 8,
+      "base_value": 8,
+      "rarity": "Rare"
+    },
+    {
+      "id": "GD01",
+      "name": "Gianluigi Donnarumma",
+      "country": "Italy",
+      "club": "PSG",
+      "position": "Goalkeeper",
+      "number": 1,
+      "base_value": 1,
+      "rarity": "Rare"
+    }
+  ],
+  "combinations": [
+    {
+      "type": "country",
+      "required_players": 2,
+      "multiplier": 3
+    },
+    {
+      "type": "club",
+      "required_players": 2,
+      "multiplier": 2
+    }
+  ]
+}

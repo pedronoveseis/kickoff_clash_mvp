@@ -1,0 +1,187 @@
+:root {
+    --epic-color: #ff6b6b;
+    --rare-color: #4ecdc4;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1e1e1e, #2d3436);
+    color: white;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+header {
+    background: rgba(0,0,0,0.8);
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+#game-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2rem;
+    font-size: 1.1em;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: 1fr; /* Single column layout for hand and info */
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px; /* Optional: Limit max width */
+    margin: 0 auto; /* Optional: Center the board */
+}
+
+.hand-area {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    grid-template-rows: repeat(3, 1fr); /* 3 rows */
+    gap: 15px; /* Space between cards */
+    /* Ensure a fixed size for the grid area if needed */
+    /* min-height: 400px; */
+}
+
+.card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+    padding: 1rem;
+    /* margin: 0.5rem; */ /* Remove margin as gap handles spacing */
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    color: black;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribute content */
+    min-height: 180px; /* Give cards a minimum height */
+}
+
+.card:active { 
+    cursor: grabbing; 
+}
+
+.card.epic { 
+    border: 2px solid var(--epic-color); /* Fixed typo: was –epic-color */
+}
+
+.card.rare {
+    border: 2px solid var(--rare-color); /* Fixed typo: was –rare-color */
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    color: black;
+    font-weight: 700;
+    font-size: 0.9em;
+}
+
+.player-name {
+    font-weight: bold;
+    color: #2d3436;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-info {
+    color: #636e72;
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: 1fr; /* Stack stats vertically */
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+    font-size: 0.85em;
+}
+
+.card-body {
+    color: black;
+    font-weight: 700;
+    font-size: 0.8em;
+}
+
+.card.dragging {
+    opacity: 0.6;
+    transform: scale(0.95);
+}
+
+#app {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    min-height: 50px; /* Ensure space for status message */
+}
+
+#status {
+    margin: 0;
+    font-size: 1em;
+    color: #eee;
+    white-space: pre-wrap; /* Allow line breaks in status */
+}
+
+.actions {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+}
+
+.action-button {
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 25px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    color: #111;
+    cursor: pointer;
+}
+
+.action-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#confirmBtn {
+    background: var(--rare-color);
+}
+
+#undoBtn {
+    background: var(--epic-color);
+}
+
+.undo-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(50%);
+}
+
+/* Adicione ao final do style.css */
+@keyframes scorePop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}

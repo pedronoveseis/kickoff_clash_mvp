@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Card Game</h1>
+        <div id="game-info">
+            <span id="turn-info">Turno: <span id="current-turn">1</span>/4</span>
+            <span id="score">Pontuação: 0</span>
+        </div>
+    </header>
+
+    <main class="game-board">
+        <div id="hand" class="hand-area">
+            <h2>Sua Mão <span class="cards-count">(6)</span></h2>
+            <div class="card-container"></div>
+        </div>
+
+        <div id="app">
+            <pre id="status">Carregando dados...</pre>
+        </div>
+
+    </main>
+
+    <div class="actions">
+        <button id="confirmBtn" class="action-button">Confirmar Jogada</button>
+        <button id="undoBtn" class="action-button">Desfazer</button>
+    </div>
+
+    <!-- Load gameLogic.js module first -->
+    <script src="js/gameLogic.js"></script>
+    <!-- Load main script -->
+    <script src="js/script.js"></script>
+</body>
+</html>
