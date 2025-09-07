@@ -1,15 +1,26 @@
 :root {
     --epic-color: #ff6b6b;
     --rare-color: #4ecdc4;
+    --common-color: #888888; /* Gray for common cards */
+    --legend-color: #ffd700; /* Gold for legend cards */
+    --background-gradient-start: #1a1a2e;
+    --background-gradient-end: #16213e;
+    --card-bg: rgba(255,255,255,0.95);
+    --text-dark: #2d3436;
+    --text-light: #636e72;
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #1e1e1e, #2d3436);
+    font-family: 'Lato', sans-serif;
+    background: linear-gradient(135deg, #1e1e1e, #2b2b2b);   
     color: white;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    min-height: 100vh;
+    /* display: flex; */
+    box-sizing: border-box;   
+    flex-direction: column;
+    align-items: center;
 }
 
 header {
@@ -22,13 +33,29 @@ header {
 #game-info {
     display: flex;
     justify-content: space-between;
-    padding: 0 2rem;
-    font-size: 1.1em;
+    padding: 0 3rem;
+    font-size: 1.2em;
+}
+
+#score {
+    font-weight: bold;
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+}
+
+#score.highlight {
+    color: #ffd700; /* Gold color for emphasis */
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    transform: scale(1.1);
+}
+
+#score.final-score {
+    color: #ff6b6b; /* Red for final score */
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
+    font-size: 1.4em;
 }
 
 .game-board {
-    display: grid;
-    grid-template-columns: 1fr; /* Single column layout for hand and info */
     gap: 2rem;
     padding: 2rem;
     max-width: 1200px; /* Optional: Limit max width */
@@ -36,17 +63,15 @@ header {
 }
 
 .hand-area {
-    background: rgba(255,255,255,0.1);
     border-radius: 15px;
-    padding: 1.5rem;
-    backdrop-filter: blur(10px);
+    padding: 3.5rem;
 }
 
 .card-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columns */
-    grid-template-rows: repeat(3, 1fr); /* 3 rows */
-    gap: 15px; /* Space between cards */
+    grid-template-columns: repeat(3, 1fr); /* 2 columns */
+    grid-template-rows: repeat(2, 1fr); /* 3 rows */
+    gap: 4rem; /* Space between cards */
     /* Ensure a fixed size for the grid area if needed */
     /* min-height: 400px; */
 }
@@ -55,24 +80,28 @@ header {
     background: rgba(255,255,255,0.95);
     border-radius: 12px;
     padding: 1rem;
-    /* margin: 0.5rem; */ /* Remove margin as gap handles spacing */
-    cursor: grab;
     transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     color: black;
     user-select: none;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Distribute content */
-    min-height: 180px; /* Give cards a minimum height */
+    height: 100%; /* Ensure cards take full height of grid cell */
 }
 
-.card:active { 
-    cursor: grabbing; 
+.card:focus {
+    outline: 2px solid #4ecdc4; /* Use rare color for focus */
+    outline-offset: 2px;
 }
 
-.card.epic { 
-    border: 2px solid var(--epic-color); /* Fixed typo: was –epic-color */
+.card.epic {
+    border: 3px solid var(--epic-color); /* Thicker border for epic cards */
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,240,240,0.95)); /* Subtle red gradient */
+}
+
+.card.legend {
+    border: 3px solid var(--legend-color); /* Thicker border for legend cards */
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,240,240,0.95)); /* Subtle gold gradient */
 }
 
 .card.rare {
@@ -82,8 +111,7 @@ header {
 .card-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
-    border-radius: 4px;
+    margin-bottom: 0.3rem;
     color: black;
     font-weight: 700;
     font-size: 0.9em;
@@ -105,12 +133,87 @@ header {
     text-overflow: ellipsis;
 }
 
-.stats {
-    display: grid;
-    grid-template-columns: 1fr; /* Stack stats vertically */
-    gap: 0.3rem;
-    margin-top: 0.5rem;
-    font-size: 0.85em;
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
+}
+
+.club-name {
+    font-size: 1em;
+    color: #636e72;
+    text-align: left;
+}
+
+.club-country {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.country-container {
+    text-align: center;
+}
+
+.card-footer {
+    text-align: center;
+    margin-top: auto;
+}
+
+.country-pill {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    width: fit-content;
+}
+
+.country-pill.common {
+    background-color: var(--common-color);
+}
+
+.country-pill.rare {
+    background-color: var(--rare-color);
+}
+
+.country-pill.epic {
+    background-color: var(--epic-color);
+}
+
+.country-pill.legend {
+    background-color: var(--legend-color);
+}
+
+.value-circle {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    line-height: 30px;
+    margin: 0.5rem auto 0 auto;
+}
+
+.value-circle.common {
+    background-color: var(--common-color);
+}
+
+.value-circle.rare {
+    background-color: var(--rare-color);
+}
+
+.value-circle.epic {
+    background-color: var(--epic-color);
+}
+
+.value-circle.legend {
+    background-color: var(--legend-color);
 }
 
 .card-body {
@@ -122,6 +225,25 @@ header {
 .card.dragging {
     opacity: 0.6;
     transform: scale(0.95);
+}
+
+.card.selected {
+    border: 2px solid var(--selected-card-border);
+    box-shadow: 0 0 15px var(--selected-card-shadow);
+    opacity: var(--selected-card-opacity);
+    transform: translateY(-5px);
+    background: rgba(255, 255, 220, 0.98); /* Light cream background for better contrast */
+}
+
+.card.epic.selected {
+    border: 3px solid var(--selected-card-border); /* Use gold border for selected epic cards */
+    box-shadow: 0 0 15px var(--selected-card-shadow);
+    background: linear-gradient(135deg, rgba(255,255,220,0.98), rgba(255,240,200,0.98)); /* Light cream gradient */
+}
+
+.card.unselected {
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 #app {
@@ -184,4 +306,66 @@ header {
     0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
     50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #2d3436, #1e1e1e);
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 15px;
+    border: 2px solid var(--rare-color);
+    width: 80%;
+    max-width: 600px;
+    max-height: 80%;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.modal-content h2 {
+    color: var(--rare-color);
+    text-align: center;
+    margin-top: 0;
+}
+
+.modal-content h3 {
+    color: var(--epic-color);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.modal-content ul {
+    padding-left: 1.5rem;
+}
+
+.modal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.close {
+    color: white;
+    float: right;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+}
+
+.close:hover,
+.close:focus {
+    color: var(--epic-color);
 }

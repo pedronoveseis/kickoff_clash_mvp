@@ -19,13 +19,13 @@ let playerHand = []; // Cards currently in hand (max 6)
 let selectedCards = [];
 let currentTurn = 1;
 let totalScore = 0;
+let gameEnded = false; // Flag to track if game has ended
 
 // --- Game State Management ---
 
 async function initializeGame() {
     try {
         gameData = await loadGameData(DATA_URL);
-        STATUS_EL.textContent = 'Dados carregados com sucesso.';
 
         // Initialize the player's deck by shuffling a copy of all cards
         playerDeck = [...gameData.cards];
@@ -44,7 +44,6 @@ async function initializeGame() {
         STATUS_EL.textContent = 'Jogo iniciado. Selecione cartas e confirme sua jogada.';
     } catch (err) {
         console.error('Erro ao inicializar o jogo:', err);
-        STATUS_EL.textContent = `Erro ao inicializar o jogo: ${err.message}`;
     }
 }
 
@@ -57,12 +56,15 @@ function shuffleDeck(deck) {
 }
 
 function drawCards(number) {
-    for (let i = 0; i < number; i++) {
-        if (playerDeck.length > 0 && playerHand.length < 6) {
+    // Draw cards to refill the hand up to 6 cards
+    const cardsToDraw = Math.min(number, 6 - playerHand.length, playerDeck.length);
+    
+    for (let i = 0; i < cardsToDraw; i++) {
+        if (playerDeck.length > 0) {
             const drawnCard = playerDeck.pop();
             playerHand.push(drawnCard);
         } else {
-            // No more cards in deck or hand is full
+            // No more cards in deck
             break;
         }
     }
@@ -83,16 +85,28 @@ function renderHand() {
         const cardEl = document.createElement('div');
         cardEl.className = `card ${card.rarity ? card.rarity.toLowerCase() : ''}`;
         cardEl.dataset.cardIndex = index; // Link back to playerHand index
-        // Simplified card display for MVP
+        
+        // Create the country pill with rarity-based color
+        const rarityClass = card.rarity ? card.rarity.toLowerCase() : 'common';
+        const countryPill = `<span class="country-pill ${rarityClass}">${card.country}</span>`;
+        
+        // Create the value circle with rarity-based color
+        const valueCircle = `<span class="value-circle ${rarityClass}">${card.base_value}</span>`;
+        
+        // Card display with proper layout
         cardEl.innerHTML = `
             <div class="card-header">
                 <span class="player-name">${card.name}</span>
                 <span class="player-info">${card.position || ''}</span>
             </div>
-            <div class="stats">
-                <span>País: ${card.country}</span>
-                <span>Clube: ${card.club}</span>
-                <span>Valor: ${card.base_value}</span>
+            <div class="card-body">
+                <div class="club-country">
+                    <span class="club-name">${card.club}</span>
+                    ${countryPill}
+                </div>
+            </div>
+            <div class="card-footer">
+                ${valueCircle}
             </div>
         `;
         cardEl.addEventListener('click', () => toggleCardSelection(index, cardEl));
@@ -105,13 +119,11 @@ function toggleCardSelection(cardIndex, cardElement) {
     if (isSelectedIndex === -1) {
         // Select card
         selectedCards.push(cardIndex);
-        cardElement.style.border = '2px solid yellow'; // Simple highlight
-        cardElement.style.boxShadow = '0 0 10px yellow';
+        cardElement.classList.add('selected');
     } else {
         // Deselect card
         selectedCards.splice(isSelectedIndex, 1);
-        cardElement.style.border = ''; // Remove highlight
-        cardElement.style.boxShadow = '';
+        cardElement.classList.remove('selected');
     }
     console.log("Selected card indices:", selectedCards);
 }
@@ -119,6 +131,17 @@ function toggleCardSelection(cardIndex, cardElement) {
 // --- Game Logic Integration ---
 
 function handleConfirmPlay() {
+    // Check if game has ended
+    if (gameEnded) {
+        alert(`Pontuação Final: ${totalScore} pontos!`);
+        return;
+    }
+    
+    if (currentTurn > 4) {
+        STATUS_EL.textContent = "O jogo já terminou!";
+        return;
+    }
+    
     if (selectedCards.length === 0) {
         alert("Por favor, selecione pelo menos uma carta.");
         return;
@@ -165,24 +188,65 @@ function handleConfirmPlay() {
     
     // Check for end of match (MVP: 4 turns)
     if (currentTurn > 4) {
+        gameEnded = true;
         STATUS_EL.textContent += " Fim da partida!";
-        CONFIRM_BTN_EL.disabled = true;
+        CONFIRM_BTN_EL.textContent = "Ver Pontuação Final";
+        CONFIRM_BTN_EL.disabled = false;
+        UNDO_BTN_EL.disabled = true;
+        
+        // Remove the existing event listener and add a new one to show final score
+        CONFIRM_BTN_EL.removeEventListener('click', handleConfirmPlay);
+        CONFIRM_BTN_EL.addEventListener('click', function() {
+            alert(`Pontuação Final: ${totalScore} pontos!`);
+        });
     }
 }
 
 function handleUndo() {
+    // Check if game has ended
+    if (gameEnded) {
+        return;
+    }
+    
     // MVP: Simple undo - just clear selection
     // A more complex version would revert the last play
     selectedCards.forEach(index => {
         const cardEl = HAND_CONTAINER_EL.querySelector(`.card[data-card-index="${index}"]`);
         if (cardEl) {
-            cardEl.style.border = '';
-            cardEl.style.boxShadow = '';
+            cardEl.classList.remove('selected');
         }
     });
     selectedCards = [];
     STATUS_EL.textContent = 'Jogada desfeita.';
 }
 
+// --- Modal Functionality ---
+function initializeModal() {
+    const rulesLink = document.getElementById('rulesLink');
+    const modal = document.getElementById('rulesModal');
+    const closeBtn = document.querySelector('#rulesModal .close');
+    
+    if (rulesLink && modal && closeBtn) {
+        rulesLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+}
+
 // --- Initialize the game on load ---
-initializeGame();
+document.addEventListener('DOMContentLoaded', function() {
+    initializeGame();
+    initializeModal();
+});

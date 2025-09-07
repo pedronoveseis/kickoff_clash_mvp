@@ -4,38 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Card Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h1>Card Game</h1>
         <div id="game-info">
             <span id="turn-info">Turno: <span id="current-turn">1</span>/4</span>
             <span id="score">Pontuação: 0</span>
+        </div>
+        <div id="rules-link-container" style="text-align: center; margin-top: 0.5rem;">
+            <a href="#" id="rulesLink" style="color: #ffd700;">Ver Regras do Jogo</a>
         </div>
     </header>
 
     <main class="game-board">
         <div id="hand" class="hand-area">
-            <h2>Sua Mão <span class="cards-count">(6)</span></h2>
             <div class="card-container"></div>
         </div>
-
-        <div id="app">
-            <pre id="status">Carregando dados...</pre>
-        </div>
-
     </main>
 
     <div class="actions">
         <button id="confirmBtn" class="action-button">Confirmar Jogada</button>
-        <button id="undoBtn" class="action-button">Desfazer</button>
     </div>
 
     <!-- Load gameLogic.js module first -->
     <script src="js/gameLogic.js"></script>
     <!-- Load main script -->
     <script src="js/script.js"></script>
+    
+    <!-- Rules Modal -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Regras do Jogo</h2>
+            <div id="rulesContent">
+                <h3>Objetivo</h3>
+                <p>O objetivo do jogo é conseguir a maior pontuação possível em 4 turnos.</p>
+                
+                <h3>Como Jogar</h3>
+                <ul>
+                    <li>Você tem 6 cartas em sua mão no início do jogo</li>
+                    <li>A cada turno, selecione de 2 a 5 cartas para jogar</li>
+                    <li>Confirme sua jogada para calcular os pontos</li>
+                    <li>Você receberá novas cartas após cada turno</li>
+                </ul>
+                
+                <h3>Combinações</h3>
+                <ul>
+                    <li><strong>País (x3):</strong> Jogue 2 ou mais cartas do mesmo país</li>
+                    <li><strong>Clube (x2):</strong> Jogue 2 ou mais cartas do mesmo clube</li>
+                    <li>Combinação de país tem prioridade sobre clube</li>
+                </ul>
+                
+                <h3>Pontuação</h3>
+                <p>A pontuação é calculada somando o valor base das cartas e aplicando o multiplicador da combinação.</p>
+                
+                <h3>Significado das Cores</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 20px; height: 20px; background-color: #888888; border-radius: 50%; margin-right: 0.5rem;"></div>
+                        <span>Comum</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 20px; height: 20px; background-color: #4ecdc4; border-radius: 50%; margin-right: 0.5rem;"></div>
+                        <span>Raro</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 20px; height: 20px; background-color: #ff6b6b; border-radius: 50%; margin-right: 0.5rem;"></div>
+                        <span>Épico</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 20px; height: 20px; background-color: #ffd700; border-radius: 50%; margin-right: 0.5rem;"></div>
+                        <span>Lendário</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

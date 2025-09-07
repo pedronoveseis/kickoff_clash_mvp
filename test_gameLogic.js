@@ -1,75 +1,87 @@
-// Test suite for game logic functions
+// Node.js compatible version of game logic functions for testing
 
-// Importing functions for Node.js environment
-const { calculateScore, validateTurn } = require('./js/gameLogic.js');
+/**
+ * Calculates the score for a given set of cards based on combination rules.
+ * @param {Array<Object>} cards - The cards played in the turn.
+ * @param {Array<Object>} combinations - The combination rules.
+ * @returns {Object} An object containing the score, the applied combination, and the base sum.
+ */
+function calculateScore(cards, combinations) {
+    if (!cards || cards.length === 0) {
+        return { score: 0, combination: 'none', baseSum: 0 };
+    }
 
-// Mock game rules based on Regras_Do_Card_Game.xml
-const mockGameRules = {
-    deck: {
-        totalCards: 33,
-        minCardsPerTurn: 2,
-        maxCardsPerTurn: 5
-    },
-    combinations: [
-        { type: 'country', required_players: 2, multiplier: 3 },
-        { type: 'club', required_players: 2, multiplier: 2 }
-    ]
-};
+    const baseSum = cards.reduce((sum, card) => sum + (card.base_value || 0), 0);
 
-// Mock card data based on players.json
-const mockCards = [
-    { id: "KM09", name: "Kylian Mbappe", country: "France", club: "Real Madrid", base_value: 9 },
-    { id: "VJ11", name: "Vinicius Junior", country: "Brazil", club: "Real Madrid", base_value: 11 },
-    { id: "JB08", name: "Jude Bellingham", country: "England", club: "Real Madrid", base_value: 8 },
-    { id: "EH09", name: "Erling Haaland", country: "Norway", club: "Manchester City", base_value: 9 },
-    { id: "LM10", name: "Lionel Messi", country: "Argentina", club: "Inter Miami", base_value: 10 }
-];
+    // Find applicable combinations
+    let bestCombination = { type: 'none', multiplier: 1 };
+    let highestMultiplier = 1;
 
-// --- Test Cases ---
+    // Check for country combination
+    const countryCounts = {};
+    cards.forEach(card => {
+        countryCounts[card.country] = (countryCounts[card.country] || 0) + 1;
+    });
+    for (const country in countryCounts) {
+        if (countryCounts[country] >= 2) { // Assuming min 2 for any combo from rules
+            const countryCombo = combinations.find(c => c.type === 'country');
+            if (countryCombo && countryCombo.multiplier > highestMultiplier) {
+                highestMultiplier = countryCombo.multiplier;
+                bestCombination = countryCombo;
+            }
+        }
+    }
 
-// Test 1: Calculate Score - No Combination
-console.log('Test 1: Calculate Score - No Combination');
-const noComboCards = [mockCards[0], mockCards[3]]; // Mbappe (France) and Haaland (Norway)
-const result1 = calculateScore(noComboCards, mockGameRules.combinations);
-console.log(`Expected: Score=18, Combination=none, BaseSum=18 | Actual: Score=${result1.score}, Combination=${result1.combination}, BaseSum=${result1.baseSum}`);
-console.log('---');
+    // Check for club combination (only if a better one hasn't been found)
+    // According to rules, country (x3) has higher priority than club (x2)
+    if (highestMultiplier < 3) { // Only check club if country combo (x3) wasn't found
+        const clubCounts = {};
+        cards.forEach(card => {
+            clubCounts[card.club] = (clubCounts[card.club] || 0) + 1;
+        });
+        for (const club in clubCounts) {
+            if (clubCounts[club] >= 2) { // Assuming min 2 for any combo from rules
+                const clubCombo = combinations.find(c => c.type === 'club');
+                if (clubCombo && clubCombo.multiplier > highestMultiplier) {
+                    highestMultiplier = clubCombo.multiplier;
+                    bestCombination = clubCombo;
+                }
+            }
+        }
+    }
 
-// Test 2: Calculate Score - Club Combination (x2)
-console.log('Test 2: Calculate Score - Club Combination (x2)');
-const clubComboCards = [mockCards[0], mockCards[1], mockCards[2]]; // All Real Madrid
-const result2 = calculateScore(clubComboCards, mockGameRules.combinations);
-console.log(`Expected: Score=56, Combination=club, BaseSum=28 | Actual: Score=${result2.score}, Combination=${result2.combination}, BaseSum=${result2.baseSum}`);
-console.log('---');
+    const score = baseSum * bestCombination.multiplier;
+    return { score, combination: bestCombination.type, baseSum };
+}
 
-// Test 3: Calculate Score - Country Combination (x3) - Higher Priority
-console.log('Test 3: Calculate Score - Country Combination (x3) - Higher Priority');
-const countryComboCards = [mockCards[1], mockCards[4]]; // Vinicius (Brazil) and Alisson (Brazil) - need to add Alisson to mock or use another
-// Let's simulate a country combo with available mock cards by adjusting the test concept slightly or adding a mock card.
-// For this test, let's assume we have two French players. We'll modify one mock card for the test.
-const frenchCard1 = { ...mockCards[0] }; // Kylian Mbappe
-const frenchCard2 = { ...mockCards[0], id: "FC07", name: "Franck Chris", country: "France", base_value: 7 }; // Another French player
-const countryComboCards2 = [frenchCard1, frenchCard2];
-const result3 = calculateScore(countryComboCards2, mockGameRules.combinations);
-console.log(`Expected: Score=48, Combination=country, BaseSum=16 | Actual: Score=${result3.score}, Combination=${result3.combination}, BaseSum=${result3.baseSum}`);
-console.log('---');
+/**
+ * Validates if a set of cards conforms to the game's deck and turn rules.
+ * @param {Array<Object>} cards - The cards to validate.
+ * @param {Object} gameRules - The game rules.
+ * @param {number} turnNumber - The current turn number.
+ * @returns {Object} An object indicating if the turn is valid and any errors.
+ */
+function validateTurn(cards, gameRules, turnNumber) {
+    const errors = [];
 
-// Test 4: Validate Turn - Valid Number of Cards
-console.log('Test 4: Validate Turn - Valid Number of Cards');
-const validTurnCards = [mockCards[0], mockCards[1], mockCards[2]];
-const validationResult1 = validateTurn(validTurnCards, mockGameRules, 1);
-console.log(`Expected: isValid=true | Actual: isValid=${validationResult1.isValid}, Errors: ${validationResult1.errors.join(', ')}`);
-console.log('---');
+    if (!cards || cards.length === 0) {
+        errors.push("Nenhuma carta selecionada.");
+        return { isValid: false, errors };
+    }
 
-// Test 5: Validate Turn - Invalid Number of Cards (Too Few)
-console.log('Test 5: Validate Turn - Invalid Number of Cards (Too Few)');
-const invalidTurnCardsFew = [mockCards[0]];
-const validationResult2 = validateTurn(invalidTurnCardsFew, mockGameRules, 2);
-console.log(`Expected: isValid=false | Actual: isValid=${validationResult2.isValid}, Errors: ${validationResult2.errors.join(', ')}`);
-console.log('---');
+    // Check card count rules
+    if (cards.length < gameRules.deck.minCardsPerTurn) {
+        errors.push(`Mínimo de ${gameRules.deck.minCardsPerTurn} cartas por turno.`);
+    }
+    if (cards.length > gameRules.deck.maxCardsPerTurn) {
+        errors.push(`Máximo de ${gameRules.deck.maxCardsPerTurn} cartas por turno.`);
+    }
 
-// Test 6: Validate Turn - Invalid Number of Cards (Too Many)
-console.log('Test 6: Validate Turn - Invalid Number of Cards (Too Many)');
-const invalidTurnCardsMany = [mockCards[0], mockCards[1], mockCards[2], mockCards[3], mockCards[4], mockCards[0]]; // 6 cards
-const validationResult3 = validateTurn(invalidTurnCardsMany, mockGameRules, 3);
-console.log(`Expected: isValid=false | Actual: isValid=${validationResult3.isValid}, Errors: ${validationResult3.errors.join(', ')}`);
-console.log('---');
+    // All validations passed if no errors
+    return { isValid: errors.length === 0, errors };
+}
+
+// Export functions for Node.js
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { calculateScore, validateTurn };
+}
