@@ -13,11 +13,14 @@
 
     <header>
         <div id="game-info">
-            <span id="turn-info">Turno: <span id="current-turn">1</span>/4</span>
+            <span id="turn-info">Turno: <span id="current-turn">1</span>/5</span>
             <span id="score">Pontuação: 0</span>
         </div>
-        <div id="rules-link-container" style="text-align: center; margin-top: 0.5rem;">
-            <a href="#" id="rulesLink" style="color: #ffd700;">Ver Regras do Jogo</a>
+        <div id="turn-progress-container" style="width: 90%; margin: 0.5rem auto; height: 8px; background-color: #333; border-radius: 4px;">
+            <div id="turn-progress" style="height: 100%; width: 25%; background-color: #4ecdc4; border-radius: 4px; transition: width 0.5s ease;"></div>
+        </div>
+        <div id="rules-link-container" style="text-align: center; margin-top: 0.3rem; margin-bottom: 0.3rem;">
+            <a href="#" id="rulesLink" style="color: #ffd700; font-size: 0.9em;">Ver Regras</a>
         </div>
     </header>
 
@@ -81,6 +84,24 @@
                         <div style="width: 20px; height: 20px; background-color: #ffd700; border-radius: 50%; margin-right: 0.5rem;"></div>
                         <span>Lendário</span>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Final Score Modal -->
+    <div id="finalScoreModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Pontuação Final</h2>
+            <div id="finalScoreContent">
+                <div style="text-align: center; margin: 2rem 0;">
+                    <div style="font-size: 3em; font-weight: bold; color: #ffd700; margin-bottom: 1rem;" id="finalScoreValue">0</div>
+                    <p style="font-size: 1.2em;">Parabéns por completar o jogo!</p>
+                </div>
+                <div id="turnsSummary"></div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button id="playAgainBtn" class="action-button" style="background-color: #4ecdc4; padding: 0.8rem 2rem;">Jogar Novamente</button>
                 </div>
             </div>
         </div>

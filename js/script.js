@@ -9,6 +9,7 @@ const CONFIRM_BTN_EL = document.getElementById('confirmBtn');
 const UNDO_BTN_EL = document.getElementById('undoBtn');
 const SCORE_EL = document.getElementById('score');
 const CURRENT_TURN_EL = document.getElementById('current-turn');
+const TURN_PROGRESS_EL = document.getElementById('turn-progress');
 
 // Ajuste o caminho caso esteja em outra pasta ou servido por backend.
 const DATA_URL = './data/players.json'; // Corrected path
@@ -20,9 +21,9 @@ let selectedCards = [];
 let currentTurn = 1;
 let totalScore = 0;
 let gameEnded = false; // Flag to track if game has ended
+let turnHistory = []; // Keep track of plays for summary
 
 // --- Game State Management ---
-
 async function initializeGame() {
     try {
         gameData = await loadGameData(DATA_URL);
@@ -75,6 +76,9 @@ function updateGameInfo() {
     SCORE_EL.textContent = `Pontuação: ${totalScore}`;
     // Update hand count display
     document.querySelector('#hand .cards-count').textContent = `(${playerHand.length})`;
+    // Update turn progress bar
+    const progressPercentage = ((currentTurn - 1) / 4) * 100;
+    TURN_PROGRESS_EL.style.width = `${progressPercentage}%`;
 }
 
 // --- UI Rendering ---
@@ -97,17 +101,14 @@ function renderHand() {
         cardEl.innerHTML = `
             <div class="card-header">
                 <span class="player-name">${card.name}</span>
-                <span class="player-info">${card.position || ''}</span>
+                <span class="country-container">${countryPill}</span>
             </div>
             <div class="card-body">
-                <div class="club-country">
-                    <span class="club-name">${card.club}</span>
-                    ${countryPill}
+                <div class="club-info">
+                    <div class="club-name">${card.club}</div>
                 </div>
             </div>
-            <div class="card-footer">
-                ${valueCircle}
-            </div>
+            <div class="card-footer">${valueCircle}</div>
         `;
         cardEl.addEventListener('click', () => toggleCardSelection(index, cardEl));
         HAND_CONTAINER_EL.appendChild(cardEl);
@@ -125,7 +126,37 @@ function toggleCardSelection(cardIndex, cardElement) {
         selectedCards.splice(isSelectedIndex, 1);
         cardElement.classList.remove('selected');
     }
+    // Update selected card counter
+    SELECTED_COUNT_EL.textContent = selectedCards.length;
     console.log("Selected card indices:", selectedCards);
+}
+
+// Add touch support for mobile devices
+function addTouchSupport() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, false);
+    
+    document.addEventListener('touchend', function(e) {
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+        const diffX = touchStartX - touchEndX;
+        const diffY = touchStartY - touchEndY;
+        
+        // Check if it's a tap (not a swipe)
+        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
+            // Find the target element
+            const target = e.target.closest('.card');
+            if (target) {
+                // Trigger the click event
+                target.click();
+            }
+        }
+    }, false);
 }
 
 // --- Game Logic Integration ---
@@ -168,6 +199,15 @@ function handleConfirmPlay() {
     // Calculate score for the play
     const scoreResult = calculateScore(cardsToPlay, gameData.combinations);
     
+    // Save turn history
+    turnHistory.push({
+        turn: currentTurn,
+        cards: cardsToPlay,
+        score: scoreResult.score,
+        combination: scoreResult.combination,
+        baseSum: scoreResult.baseSum
+    });
+    
     // Update game state
     totalScore += scoreResult.score;
     currentTurn++;
@@ -184,21 +224,30 @@ function handleConfirmPlay() {
     renderHand();
     updateGameInfo();
     
-    STATUS_EL.textContent = `Jogada confirmada! ${scoreResult.baseSum} x ${scoreResult.combination === 'country' ? 3 : scoreResult.combination === 'club' ? 2 : 1} = ${scoreResult.score} pontos.`;
+    // Show detailed scoring feedback
+    const combinationText = scoreResult.combination === 'country' ? 'País (x3)' : 
+                           scoreResult.combination === 'club' ? 'Clube (x2)' : 'Sem combinação (x1)';
+    const pointsText = `${scoreResult.baseSum} x ${scoreResult.combination === 'country' ? 3 : scoreResult.combination === 'club' ? 2 : 1} = ${scoreResult.score} pontos`;
     
-    // Check for end of match (MVP: 4 turns)
-    if (currentTurn > 4) {
+    STATUS_EL.innerHTML = `Jogada confirmada!<br><strong>${combinationText}</strong><br>${pointsText}`;
+    
+    // Add animation to score display
+    SCORE_EL.classList.add('highlight');
+    setTimeout(() => {
+        SCORE_EL.classList.remove('highlight');
+    }, 1000);
+    
+    // Check for end of match (MVP: 5 turns)
+    if (currentTurn > 5) {
         gameEnded = true;
-        STATUS_EL.textContent += " Fim da partida!";
+        STATUS_EL.innerHTML += "<br><strong>Fim da partida!</strong>";
         CONFIRM_BTN_EL.textContent = "Ver Pontuação Final";
         CONFIRM_BTN_EL.disabled = false;
         UNDO_BTN_EL.disabled = true;
         
         // Remove the existing event listener and add a new one to show final score
         CONFIRM_BTN_EL.removeEventListener('click', handleConfirmPlay);
-        CONFIRM_BTN_EL.addEventListener('click', function() {
-            alert(`Pontuação Final: ${totalScore} pontos!`);
-        });
+        CONFIRM_BTN_EL.addEventListener('click', showFinalScoreModal);
     }
 }
 
@@ -217,7 +266,72 @@ function handleUndo() {
         }
     });
     selectedCards = [];
-    STATUS_EL.textContent = 'Jogada desfeita.';
+    // Reset selected card counter
+    SELECTED_COUNT_EL.textContent = selectedCards.length;
+}
+
+// --- Final Score Modal ---
+function showFinalScoreModal() {
+    const finalScoreModal = document.getElementById('finalScoreModal');
+    const finalScoreValue = document.getElementById('finalScoreValue');
+    const turnsSummary = document.getElementById('turnsSummary');
+    
+    // Set final score
+    finalScoreValue.textContent = totalScore;
+    
+    // Generate turns summary
+    let summaryHTML = '<h3>Resumo dos Turnos</h3>';
+    turnHistory.forEach(turn => {
+        const combinationText = turn.combination === 'country' ? 'País (x3)' : 
+                              turn.combination === 'club' ? 'Clube (x2)' : 'Sem combinação (x1)';
+        summaryHTML += `
+            <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <div><strong>Turno ${turn.turn}:</strong> ${turn.cards.length} cartas</div>
+                <div>Combinação: ${combinationText}</div>
+                <div>Pontuação: ${turn.baseSum} x ${turn.combination === 'country' ? 3 : turn.combination === 'club' ? 2 : 1} = ${turn.score} pontos</div>
+            </div>
+        `;
+    });
+    
+    turnsSummary.innerHTML = summaryHTML;
+    
+    // Show modal
+    finalScoreModal.style.display = 'block';
+    
+    // Set up close button
+    const closeBtn = finalScoreModal.querySelector('.close');
+    closeBtn.onclick = function() {
+        finalScoreModal.style.display = 'none';
+    };
+    
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target == finalScoreModal) {
+            finalScoreModal.style.display = 'none';
+        }
+    };
+    
+    // Set up play again button
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    playAgainBtn.onclick = function() {
+        // Reset game state
+        currentTurn = 1;
+        totalScore = 0;
+        turnHistory = [];
+        gameEnded = false;
+        
+        // Hide modal
+        finalScoreModal.style.display = 'none';
+        
+        // Reinitialize game
+        initializeGame();
+        
+        // Reset button text and event listener
+        CONFIRM_BTN_EL.textContent = "Confirmar Jogada";
+        CONFIRM_BTN_EL.removeEventListener('click', showFinalScoreModal);
+        CONFIRM_BTN_EL.addEventListener('click', handleConfirmPlay);
+        UNDO_BTN_EL.disabled = false;
+    };
 }
 
 // --- Modal Functionality ---
@@ -243,10 +357,27 @@ function initializeModal() {
             }
         });
     }
+    
+    // Initialize final score modal
+    const finalScoreModal = document.getElementById('finalScoreModal');
+    if (finalScoreModal) {
+        const closeBtn = finalScoreModal.querySelector('.close');
+        closeBtn.addEventListener('click', function() {
+            finalScoreModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            if (event.target == finalScoreModal) {
+                finalScoreModal.style.display = 'none';
+            }
+        });
+    }
 }
 
 // --- Initialize the game on load ---
 document.addEventListener('DOMContentLoaded', function() {
     initializeGame();
     initializeModal();
+    addTouchSupport(); // Add touch support for mobile devices
 });
